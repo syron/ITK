@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace TabBlazor.Templates.Server.Migrations
+namespace ITK.Web.Migrations
 {
     public partial class addedExampleData : Migration
     {

@@ -1,4 +1,4 @@
-namespace TabBlazor.Templates.Server
+namespace ITK.Web
 {
     public class Program
     {

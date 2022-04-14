@@ -1,5 +1,5 @@
 ﻿@page "/"
-@namespace TabBlazor.Templates.Server.Pages
+@namespace ITK.Web.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     Layout = null;
@@ -10,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TabBlazor.Templates.Server</title>
+    <title>ITK.Web</title>
     <base href="~/" />
    
      <link rel="stylesheet" href="@("https://unpkg.com/@tabler/core@1.0.0-beta2/dist/css/tabler.min.css")">
@@ -18,7 +18,7 @@
     <script src="_content/TabBlazor/js/tabblazor.js"></script>
 
     <link href="css/site.css" rel="stylesheet" />
-    <link href="TabBlazor.Templates.Server.styles.css" rel="stylesheet" />
+    <link href="ITK.Web.styles.css" rel="stylesheet" />
 </head>
 <body>
     <component type="typeof(App)" render-mode="ServerPrerendered" />

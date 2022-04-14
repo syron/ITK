@@ -1,4 +1,4 @@
-﻿namespace TabBlazor.Templates.Server
+﻿namespace ITK.Web
 {
     public static class Icons
     {

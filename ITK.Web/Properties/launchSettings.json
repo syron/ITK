@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "TabBlazor.Templates.Server": {
+    "ITK.Web": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,

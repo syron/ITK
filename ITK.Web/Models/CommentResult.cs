@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TabBlazor.Templates.Server.Models
+namespace ITK.Web.Models
 {
 	public class CommentResult
 	{

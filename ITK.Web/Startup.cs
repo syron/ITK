@@ -3,8 +3,9 @@ using KIT.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TabBlazor;
 
-namespace TabBlazor.Templates.Server
+namespace ITK.Web
 {
     public class Startup
     {
