@@ -1,0 +1,106 @@
+﻿@page "/schemasupdate/{Id:int}"
+
+@using KIT.Models;
+@using KIT.Services;
+@using TabBlazor.Services;
+@using TabBlazor.Templates.Server.Models;
+
+@inject SchemasService SchemasService;
+@inject NavigationManager NavigationManager
+@inject IModalService ModalService
+
+@if (schema is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h1>Update Schema - @schema.Name</h1>
+
+    <a href="/schemas">Back to List of Schemas</a>
+
+    <EditForm Model="schema" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label for="name">Name</label>
+        <InputText class="form-control" id="name" @bind-Value="schema.Name" />
+
+        <label for="datatype">Datatype</label>
+        <InputSelect id="datatype" class="form-control" @bind-Value="schema.DataType">
+            @foreach (var e in Enum.GetNames(typeof(DataType)))
+                {
+                <option value="@e">@e</option>
+                }
+        </InputSelect>
+
+        <label for="description">Description</label>
+        <InputTextArea class="form-control" id="description" @bind-Value="schema.Description" />
+
+        <label for="definition">Definition</label>
+        <InputTextArea class="form-control" id="definition" @bind-Value="schema.Definition" />
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Schema? schema;
+    private string? saveComment;
+    @* private Modal? modal; *@
+
+    protected override async void OnInitialized()
+    {
+        schema = await SchemasService.GetSchemaByIdAsync(Id);
+    }
+
+    @* private async Task OnShowModalClick()
+        {
+            if (modal is not null) {
+                await modal.ShowAsync();
+            }
+        }
+
+        private async Task OnHideModalClick()
+        {
+            if (modal is not null) {
+                await modal.HideAsync();
+            }
+        }
+
+        private async Task OnSaveModalClick()
+        {
+            if (SchemasService is null) {
+                Console.WriteLine("Not working...");
+            }
+            else {
+                Console.WriteLine(saveComment);
+                if (schema is not null) {
+                    await SchemasService.UpdateAsync(schema, saveComment);
+                    NavigationManager.NavigateTo($"/schemas");
+                } else {
+                    Console.WriteLine("Schema is null");
+                }
+            }
+        } *@
+
+    private async void HandleValidSubmit()
+    {
+        if (schema is not null)
+        {
+            var component = new RenderComponent<CommentAddComponent>();
+            var result = await ModalService.ShowAsync("Save Schema", component, new ModalOptions { Size = ModalSize.Large });
+
+            if (!result.Cancelled)
+            {
+                var commentResult = (CommentResult)result.Data;
+
+                await SchemasService.UpdateAsync(schema, commentResult.Message);
+                NavigationManager.NavigateTo($"/schemadetails/{Id}");
+            }
+        }
+    }
+}

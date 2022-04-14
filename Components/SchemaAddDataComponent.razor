@@ -1,0 +1,48 @@
+﻿@using KIT.Models;
+@using KIT.Services;
+@using TabBlazor.Services;
+
+@inject SchemasService SchemasService
+
+<EditForm Model="schemaExampleData" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label for="name">Name</label>
+    <InputText class="form-control" id="name" @bind-Value="schemaExampleData.Name" />
+
+    <label for="description">Description</label>
+    <InputTextArea class="form-control" id="description" @bind-Value="schemaExampleData.Description" />
+
+    <label for="content">Content</label>
+    <InputTextArea class="form-control" id="content" @bind-Value="schemaExampleData.Content" />
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</EditForm>
+
+@code {
+    [Inject]
+    private IModalService modalService { get; set; }
+
+    [Parameter]
+    public int SchemaId { get; set; }
+
+    SchemaExampleData schemaExampleData = new SchemaExampleData("", "", "ROMA");
+    private string? saveComment;
+
+    protected override void OnInitialized()
+    {
+    }
+
+    private async void HandleValidSubmit()
+    {
+        try {
+            await SchemasService.AddExampleDataAsync(SchemaId, schemaExampleData);
+            modalService.Close(ModalResult.Ok());
+        }
+        catch
+        {
+            modalService.Close(ModalResult.Cancel());
+        }
+    }
+}

@@ -1,0 +1,55 @@
+@page "/Maps"
+
+@using KIT.Models
+@using KIT.Services
+
+@inject KIT.Services.MapsService MapsService
+
+<PagePretitle>
+    <a href="/">Back to Dashboard</a>
+</PagePretitle>
+<TabBlazor.PageTitle>
+    List of Maps
+</TabBlazor.PageTitle>
+
+<div class="row mt-2">
+    @if (MapData is not null)
+    {
+        <Table Item="Map" Items="MapData">
+            <HeaderTemplate>
+                <h3>Maps</h3>
+            </HeaderTemplate>
+            <ChildContent>
+                <Column Item="Map" Property="e => e.Name" Sortable Searchable>
+                    <Template>
+                        <a href="/mapdetails/@context.Id">@context.Name</a>
+                    </Template>
+                </Column>
+                <Column Item="Map" Property="e => e.MapType" Title="Type" Sortable Searchable Groupable />
+                <Column Item="Map" Property="e => e.InSchema" Title="In Schema" Sortable Searchable>
+                    <Template>
+                        @context.InSchema?.Name
+                    </Template>
+                </Column>
+                <Column Item="Map" Property="e => e.OutSchema" Title="Out Schema" Sortable Searchable>
+                    <Template>
+                        @context.OutSchema?.Name
+                    </Template>
+                </Column>
+                <Column Item="Map" Property="e => e.CreatedByLocalTime" Sortable Searchable>
+                    <Template>
+                        @context.Created.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                    </Template>
+                </Column>
+            </ChildContent>
+        </Table>
+    }
+</div>
+@code {
+    List<Map> MapData = new List<Map>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        MapData = await MapsService.GetAsync();
+    }
+}

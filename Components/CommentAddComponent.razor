@@ -1,0 +1,29 @@
+﻿@using KIT.Models;
+@using KIT.Services;
+@using TabBlazor.Services;
+@using TabBlazor.Templates.Server.Models;
+
+@inject SchemasService SchemasService
+
+    <label for="description">Description</label>
+    <textarea @bind="saveComment" class="form-control"></textarea>
+
+
+    <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit">Save</button>
+
+
+@code {
+    [Inject] private IModalService modalService { get; set; }
+
+    private string? saveComment;
+
+    protected override void OnInitialized()
+    {
+    }
+
+    private async void HandleValidSubmit()
+    {
+        Console.WriteLine("Submitting Comment Add Component");
+        modalService.Close(ModalResult.Ok(new CommentResult(saveComment)));
+    }
+}

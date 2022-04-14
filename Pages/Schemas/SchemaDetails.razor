@@ -1,0 +1,138 @@
+﻿@page "/schemadetails/{Id:int}"
+
+@using KIT.Models;
+@using KIT.Services;
+@using TabBlazor.Services;
+
+@inject SchemasService SchemasService
+@inject HistoryEntriesService HistoryEntriesService
+@inject IJSRuntime IJSRuntime
+@inject IModalService ModalService
+
+<PagePretitle>
+    <a href="/schemas">Back to List of Schemas</a>
+</PagePretitle>
+
+@if (Schema is not null)
+{
+
+    @*<Modal @ref="AddExampleData" Title="Add Example Data">
+            <BodyTemplate>
+
+                <p>hello ... </p>
+
+            </BodyTemplate>
+            <FooterTemplate>
+                <Button Color="ButtonColor.Secondary" @onclick="OnHideAddExampleDataModalClick">Close</Button>
+                <Button Color="ButtonColor.Primary" @onclick="OnSaveAddExampleDataModalClick">Save changes</Button>
+            </FooterTemplate>
+        </Modal>*@
+
+
+    <TabBlazor.PageTitle>
+        @Schema.Name
+    </TabBlazor.PageTitle>
+
+
+    <a href="/schemasupdate/@Schema.Id" class="btn btn-primary">Update</a>
+
+    @*<div class="row">
+            <div class="col">
+                <h1>@Schema.Name</h1>
+                <p>@Schema.Description</p>
+            </div>
+        </div>*@
+
+    <div class="row">
+        <div class="col-8">
+<pre class="code"><code class="@Schema.DataType">
+@Schema.Definition
+</code></pre>
+        </div>
+        <div class="col-4">
+            <h4>Example Data</h4>
+            <Button @onclick="ShowModal" BackgroundColor="TablerColor.Primary">Add</Button>
+            @if (Schema.ExampleDatas is not null)
+            {
+                <ul>
+                    @foreach (var example in Schema.ExampleDatas)
+                    {
+                        <li>@example.Name</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No example data provided yet...</p>
+            }
+
+            <h4>History</h4>
+
+            @if (HistoryEntries is not null)
+            {
+                <ul>
+                    @foreach (var historyEvent in HistoryEntries)
+                    {
+                        <li>
+                            @historyEvent.Created.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") -
+                            @if (!string.IsNullOrWhiteSpace(historyEvent.Comment))
+                            {
+                                <span>@historyEvent.Comment</span>
+                            }
+                            else
+                            {
+                                <span>No comment</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No history</p>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p>Not found</p>
+}
+
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    Schema Schema = new Schema("", "");
+    List<HistoryEntry>? HistoryEntries;
+    private string message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Schema = await SchemasService.GetSchemaByIdAsync(Id);
+        HistoryEntries = await HistoryEntriesService.GetAsync(Id, KITEntityType.Schema);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+    }
+
+    protected async Task ShowModal()
+    {
+        message = string.Empty;
+
+        var component = new RenderComponent<SchemaAddDataComponent>().Set(e => e.SchemaId, Id);
+        var result = await ModalService.ShowAsync("Give your change a message", component, new ModalOptions { Size = ModalSize.Large });
+
+        if (result.Cancelled)
+        {
+            Console.WriteLine("Modal was cancelled!");
+        }
+        else
+        {
+            Console.WriteLine("Modal as ok!");
+        }
+    }
+}

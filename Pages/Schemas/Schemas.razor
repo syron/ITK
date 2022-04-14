@@ -1,0 +1,130 @@
+﻿@page "/schemas"
+
+@using KIT.Models
+@using KIT.Services
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Primitives
+
+@inject NavigationManager NavigationManager
+@inject SchemasService SchemasService
+
+
+<PagePretitle>
+    <a href="/">Back to Dashboard</a>
+</PagePretitle>
+<TabBlazor.PageTitle>
+    List of Schemas
+</TabBlazor.PageTitle>
+
+<a href="/schemas/add" class="btn btn-primary">Add Schema</a>
+
+@*<div class="row mt-2">
+    <div class="col">
+        <Card Size="CardSize.Small">
+            <CardBody class="d-flex align-items-center">
+                <span class="bg-blue text-white stamp me-3">
+                    <Icon IconType="@TablerIcons.Currency_dollar" />
+                </span>
+                <div class="me-3 lh-sm">
+                    <div class="strong">
+                        3 Schemas
+                    </div>
+                    <div class="text-muted">Not used in Maps</div>
+                </div>
+            </CardBody>
+        </Card>
+    </div>
+    <div class="col"></div>
+    <div class="col"></div>
+    <div class="col"></div>
+</div>*@
+
+@if (SchemasData is null || SchemasData.Count == 0) {
+    <div class="row mt-2 ">
+        <div class="col">
+            <p>No schemas found</p>
+        </div>
+    </div>
+}
+else {
+    <div class="row mt-2 ">
+        <div class="col">
+            <Table Item="Schema" Items="SchemasData">
+                <HeaderTemplate>
+                    <h3>Schemas</h3>
+                </HeaderTemplate>
+                <ChildContent>
+                    <Column Item="Schema" Property="e => e.Name" Sortable Searchable>
+                        <Template>
+                            <a href="/schemadetails/@context.Id">@context.Name</a>
+                        </Template>
+                    </Column>
+                    <Column Item="Schema" Property="e => e.DataType" Title="Type" Sortable Searchable Groupable />
+                    <Column Item="Schema" Property="e => e.Description" Title="In Schema" Sortable Searchable />
+                    <Column Item="Schema" Property="e => e.LatestChange" Sortable Searchable>
+                        <Template>
+                            @context.LatestChange?.Created.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                        </Template>
+                    </Column>
+                </ChildContent>
+            </Table>
+        </div>
+    </div>
+}
+
+@code {
+
+    List<Schema>? SchemasData = new List<Schema>();
+
+    string? _datatype { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        StringValues dataType;
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        Console.WriteLine(uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("datatype", out dataType))
+        {
+            await FilterSchemasByDataType(dataType);
+        }
+        else
+        {
+            await FilterSchemasByDataType(null);
+        }
+    }
+
+    async Task FilterSchemasByDataType(string? dataType)
+    {
+        if (!string.IsNullOrWhiteSpace(dataType))
+        {
+            if (Enum.TryParse(typeof(DataType), dataType, out object? selectedValue))
+            {
+                if (selectedValue is not null)
+                {
+                    DataType datatype = (DataType)selectedValue;
+                    _datatype = dataType;
+                    SchemasData = await SchemasService.GetSchemasByDataTypeAsync(datatype);
+                }
+            }
+        }
+        else
+        {
+            var schemaResponse = await SchemasService.GetSchemasAsync();
+            if (schemaResponse.Result is not null)
+                SchemasData = schemaResponse.Result;
+        }
+
+        if (SchemasData is not null)
+        {
+            SchemasData = SchemasData.OrderByDescending(sd => sd.LatestChange?.Created).ToList();
+        }
+    }
+
+    async Task OnChangeFilterSchemasByDataType(ChangeEventArgs e)
+    {
+        string? SelectedString = e.Value!.ToString();
+        NavigationManager.NavigateTo($"/schemas?datatype={SelectedString}");
+
+        await FilterSchemasByDataType(SelectedString);
+    }
+}

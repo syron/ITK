@@ -1,0 +1,85 @@
+﻿@page "/schemas/add"
+
+@using KIT.Models;
+@using KIT.Services;
+@using TabBlazor.Services;
+@using TabBlazor.Templates.Server.Models;
+
+@inject SchemasService SchemasService;
+@inject NavigationManager NavigationManager
+@inject HistoryEntriesService HistoryEntriesService
+@inject IJSRuntime IJSRuntime
+@inject IModalService ModalService
+
+<PagePretitle>
+    <a href="/schemas">Back to List of Schemas</a>
+</PagePretitle>
+<TabBlazor.PageTitle>
+    Create a new Schema
+</TabBlazor.PageTitle>
+
+
+
+@*
+
+    <Modal @ref="modal" Title="Save Schema">
+        <BodyTemplate>
+
+            <label for="savecomment">Comment:</label>
+            <textarea id="savecomment" class="form-control" @bind="saveComment"></textarea>
+
+        </BodyTemplate>
+        <FooterTemplate>
+            <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
+            <Button Color="ButtonColor.Primary" @onclick="OnSaveModalClick">Save changes</Button>
+        </FooterTemplate>
+    </Modal> *@
+
+<EditForm Model="schema" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label for="name">Name</label>
+    <InputText class="form-control" id="name" @bind-Value="schema.Name" />
+
+    <label for="datatype">Datatype</label>
+    <InputSelect id="datatype" class="form-control" @bind-Value="schema.DataType">
+        @foreach (var e in Enum.GetNames(typeof(DataType)))
+        {
+            <option value="@e">@e</option>
+        }
+    </InputSelect>
+
+    <label for="description">Description</label>
+    <InputTextArea class="form-control" id="description" @bind-Value="schema.Description" />
+
+    <label for="definition">Definition</label>
+    <InputTextArea class="form-control" id="definition" @bind-Value="schema.Definition" />
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</EditForm>
+
+@code {
+    private Schema schema = new(string.Empty, "Robert");
+
+    protected override void OnInitialized()
+    {
+    }
+
+    private async void HandleValidSubmit()
+    {
+        var component = new RenderComponent<CommentAddComponent>();
+        var result = await ModalService.ShowAsync("Save Schema", component, new ModalOptions { Size = ModalSize.Large });
+
+
+        if (!result.Cancelled)
+        {
+            var commentResult = (CommentResult)result.Data;
+
+            var addedSchema = await SchemasService.AddAsync(schema, commentResult.Message);
+
+
+            NavigationManager.NavigateTo($"/schemadetails/{addedSchema.Id}");
+        }
+    }
+}
