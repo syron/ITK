@@ -45,9 +45,13 @@
 
     <div class="row">
         <div class="col-8">
-<pre class="code"><code class="@Schema.DataType">
-@Schema.Definition
-</code></pre>
+
+@if (Schema.DataType == DataType.JSON) {
+    <pre class="line-numbers"><code class="language-json">@Schema.Definition</code></pre>
+} else {
+    <pre class="line-numbers"><code class="language-xml">@Schema.Definition</code></pre>
+}
+
         </div>
         <div class="col-4">
             <h4>Example Data</h4>
@@ -117,6 +121,7 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        await IJSRuntime.InvokeVoidAsync("Prism.highlightAll");
     }
 
     protected async Task ShowModal()

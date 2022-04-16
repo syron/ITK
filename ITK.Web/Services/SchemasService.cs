@@ -22,20 +22,31 @@ public class SchemasService
         }
     }
 
-    public async Task<ServiceResponse<List<Schema>?>> GetSchemasAsync(int page = 1, int items = 25, string? filter = null)
+    public async Task<ServiceResponse<List<Schema>?>> GetSchemasAsync(int page = 1, int items = 25, DateTime? fromDate = null, DateTime? toDate = null, string? filter = null)
     {
-        List<Schema>? schemas = null;
+
+        if (_appDbContext.Schemas is null)
+            throw new Exception("Schemas in appdbcontext is null.");
+
+
+        IQueryable<Schema>? schemasResult = _appDbContext.Schemas;
+        if (toDate is not null && fromDate is not null)
+        {
+            schemasResult = schemasResult.Where(s => s.Created >= fromDate && s.Created <= toDate);
+        }
+
+
         if (filter is not null)
-            schemas = _appDbContext.Schemas!
+            schemasResult = schemasResult
                                    .Where(s => s.Name!.Contains(filter) || (s.Description != null && s.Description.Contains(filter)))
                                    .Skip((page - 1) * items)
-                                   .Include(s => s.ExampleDatas)
-                                   .ToList();
+                                   .Include(s => s.ExampleDatas);
         else
-            schemas = _appDbContext.Schemas!
+            schemasResult = schemasResult
                                    .Skip((page-1) * items)
-                                   .Include(s => s.ExampleDatas)
-                                   .ToList();
+                                   .Include(s => s.ExampleDatas);
+
+        List<Schema> schemas = schemasResult.ToList();
 
         if (schemas is not null)
         {

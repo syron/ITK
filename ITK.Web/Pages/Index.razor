@@ -1,12 +1,38 @@
 ﻿@page "/"
 
+@using KIT.Services
+
+@inject SchemasService SchemasService
 @* <PagePretitle>
-    TabBlazor
-    <Icon class="align-text-top" Elements="@Icons.Heart"
-          TextColor="TablerColor.Red" Size="12" Filled />
-</PagePretitle> *@
+        TabBlazor
+        <Icon class="align-text-top" Elements="@Icons.Heart"
+              TextColor="TablerColor.Red" Size="12" Filled />
+    </PagePretitle> *@
 <TabBlazor.PageTitle>
     Home
 </TabBlazor.PageTitle>
 
-<SampleComponents />
+<div class="row">
+    <div class="col">
+        @numberOfSchemas
+    </div>
+    <div class="col">
+
+    </div>
+    <div class="col">
+
+    </div>
+</div>
+
+
+@code {
+
+    int numberOfSchemas = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var t = await SchemasService.GetSchemasAsync();
+        numberOfSchemas = t.Result.Count;
+    }
+
+}
