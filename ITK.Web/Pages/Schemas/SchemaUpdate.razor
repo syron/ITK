@@ -38,7 +38,7 @@ else
         <InputTextArea class="form-control" id="description" @bind-Value="schema.Description" />
 
         <label for="definition">Definition</label>
-        <InputTextArea class="form-control" id="definition" @bind-Value="schema.Definition" />
+        <MonacoEditor @ref="_editor" Id="definition" CssClass="my-editor-class" ConstructionOptions="EditorConstructionOptions" />
 
         <button type="submit" class="btn btn-primary">Save</button>
     </EditForm>
@@ -52,10 +52,24 @@ else
     private string? saveComment;
     @* private Modal? modal; *@
 
+
+    private MonacoEditor _editor { get; set; }
+
     protected override async void OnInitialized()
     {
         schema = await SchemasService.GetSchemaByIdAsync(Id);
     }
+
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(MonacoEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+        {
+            AutomaticLayout = true,
+            Language = "json",
+            Value = schema.Definition
+        };
+    }
+
 
     @* private async Task OnShowModalClick()
         {
@@ -89,8 +103,11 @@ else
 
     private async void HandleValidSubmit()
     {
+
+
         if (schema is not null)
         {
+            schema.Definition = await _editor.GetValue();
             var component = new RenderComponent<CommentAddComponent>();
             var result = await ModalService.ShowAsync("Save Schema", component, new ModalOptions { Size = ModalSize.Large });
 

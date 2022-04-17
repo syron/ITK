@@ -1,0 +1,44 @@
+﻿@using KIT.Models;
+@using KIT.Services;
+@using NJsonSchema
+@using TabBlazor.Services;
+@using ITK.Web.Models;
+
+@inject SchemasService SchemasService
+
+    <label for="payload">Payload</label>
+    <MonacoEditor @ref="_editor" Id="payload" CssClass="my-editor-class" ConstructionOptions="EditorConstructionOptions" />
+
+    <button type="submit" class="btn btn-primary" @onclick="HandleValidSubmit">Save</button>
+
+
+@code {
+    [Inject] private IModalService modalService { get; set; }
+    [Parameter] public DataType type { get; set; }
+    private MonacoEditor _editor { get; set; }
+
+    protected override void OnInitialized()
+    {
+    }
+
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(MonacoEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+        {
+            AutomaticLayout = true,
+            Language = "json"
+        };
+    }
+
+    private async void HandleValidSubmit()
+    {
+        string schema = "";
+        if (type == DataType.JSON) 
+        {
+            JsonSchema result = JsonSchema.FromSampleJson(await _editor.GetValue());
+            schema = result.ToJson();
+        }
+
+        modalService.Close(ModalResult.Ok(schema));
+    }
+}
