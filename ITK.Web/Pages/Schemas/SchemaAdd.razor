@@ -120,6 +120,8 @@
         {
             var commentResult = (CommentResult)result.Data;
 
+            schema.Definition = await _editor.GetValue();
+
             var addedSchema = await SchemasService.AddAsync(schema, commentResult.Message);
 
 

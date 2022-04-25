@@ -13,53 +13,28 @@
     <a href="/schemas">Back to List of Schemas</a>
 </PagePretitle>
 
-@if (Schema is not null)
-{
-
-    @*<Modal @ref="AddExampleData" Title="Add Example Data">
-            <BodyTemplate>
-
-                <p>hello ... </p>
-
-            </BodyTemplate>
-            <FooterTemplate>
-                <Button Color="ButtonColor.Secondary" @onclick="OnHideAddExampleDataModalClick">Close</Button>
-                <Button Color="ButtonColor.Primary" @onclick="OnSaveAddExampleDataModalClick">Save changes</Button>
-            </FooterTemplate>
-        </Modal>*@
-
 
     <TabBlazor.PageTitle>
-        @Schema.Name
+        @_schema.Name
     </TabBlazor.PageTitle>
 
 
-    <a href="/schemasupdate/@Schema.Id" class="btn btn-primary">Make some changes</a>
+    <a href="/schemasupdate/@_schema.Id" class="btn btn-primary">Make some changes</a>
 
-    @*<div class="row">
-            <div class="col">
-                <h1>@Schema.Name</h1>
-                <p>@Schema.Description</p>
-            </div>
-        </div>*@
 
     <div class="row">
         <div class="col-8">
 
-@if (Schema.DataType == DataType.JSON) {
-    <pre class="line-numbers"><code class="language-json">@Schema.Definition</code></pre>
-} else {
-    <pre class="line-numbers"><code class="language-xml">@Schema.Definition</code></pre>
-}
+            <MonacoEditor @ref="_editor" Id="definition" OnDidInit="EditorOnDidInit" CssClass="my-editor-class" ConstructionOptions="EditorConstructionOptions" />
 
         </div>
         <div class="col-4">
             <h4>Example Data</h4>
             <Button @onclick="ShowModal" BackgroundColor="TablerColor.Primary">Add</Button>
-            @if (Schema.ExampleDatas is not null)
+            @if (_schema.ExampleDatas is not null)
             {
                 <ul>
-                    @foreach (var example in Schema.ExampleDatas)
+                    @foreach (var example in _schema.ExampleDatas)
                     {
                         <li>@example.Name</li>
                     }
@@ -97,36 +72,53 @@
             }
         </div>
     </div>
-}
-else
-{
-    <p>Not found</p>
-}
-
 
 @code {
 
     [Parameter]
     public int Id { get; set; }
 
-    Schema Schema = new Schema("", "");
-    List<HistoryEntry>? HistoryEntries;
-    private string message;
+    private Schema? _schema = new Schema("", "");
+    private List<HistoryEntry>? HistoryEntries;
+    private string? _message;
+    MonacoEditor? _editor { get; set; }
+
+    private string? _language { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Schema = await SchemasService.GetSchemaByIdAsync(Id);
-        HistoryEntries = await HistoryEntriesService.GetAsync(Id, KITEntityType.Schema);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(MonacoEditor editor)
     {
-        //await IJSRuntime.InvokeVoidAsync("Prism.highlightAll");
+        return new StandaloneEditorConstructionOptions
+        {
+            AutomaticLayout = true,
+            Language = "json"
+        };
+    }
+
+    private async Task EditorOnDidInit(MonacoEditorBase editor)
+    {
+        _schema = await SchemasService.GetSchemaByIdAsync(Id);
+
+        if (_schema is not null)
+        {
+            if (_schema.Definition is not null)
+            {
+                _editor.SetValue(_schema.Definition);
+                Console.WriteLine(_schema.DataType.ToString());
+                await MonacoEditorBase.SetModelLanguage(await _editor.GetModel(), _schema.DataType.ToString().ToLower());
+            }
+
+            _language = _schema.DataType.ToString();
+            HistoryEntries = await HistoryEntriesService.GetAsync(Id, KITEntityType.Schema);
+        }
     }
 
     protected async Task ShowModal()
     {
-        message = string.Empty;
+        _message = string.Empty;
 
         var component = new RenderComponent<SchemaAddDataComponent>().Set(e => e.SchemaId, Id);
         var result = await ModalService.ShowAsync("Give your change a message", component, new ModalOptions { Size = ModalSize.Large });
@@ -140,4 +132,4 @@ else
             Console.WriteLine("Modal as ok!");
         }
     }
-}
+    }
