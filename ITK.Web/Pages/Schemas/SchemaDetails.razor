@@ -30,13 +30,13 @@
         </div>
         <div class="col-4">
             <h4>Example Data</h4>
-            <Button @onclick="ShowModal" BackgroundColor="TablerColor.Primary">Add</Button>
+            <Button @onclick="AddData" BackgroundColor="TablerColor.Primary">Add</Button>
             @if (_schema.ExampleDatas is not null)
             {
                 <ul>
                     @foreach (var example in _schema.ExampleDatas)
                     {
-                        <li>@example.Name</li>
+                        <li><a @onclick="@(e => ViewData(example))">@example.Name</a></li>
                     }
                 </ul>
             }
@@ -116,12 +116,28 @@
         }
     }
 
-    protected async Task ShowModal()
+    protected async Task AddData()
     {
         _message = string.Empty;
 
         var component = new RenderComponent<SchemaAddDataComponent>().Set(e => e.SchemaId, Id);
-        var result = await ModalService.ShowAsync("Give your change a message", component, new ModalOptions { Size = ModalSize.Large });
+        var result = await ModalService.ShowAsync("Give your schema some example data", component, new ModalOptions { Size = ModalSize.Large });
+
+        if (result.Cancelled)
+        {
+            Console.WriteLine("Modal was cancelled!");
+        }
+        else
+        {
+            Console.WriteLine("Modal as ok!");
+        }
+    }
+    protected async Task ViewData(SchemaExampleData schemaExampleData)
+    {
+        _message = string.Empty;
+
+        var component = new RenderComponent<SchemaViewDataComponent>().Set(e => e.SchemaId, Id).Set(e => e.schemaExampleData, schemaExampleData);
+        var result = await ModalService.ShowAsync("Your example data", component, new ModalOptions { Size = ModalSize.Large });
 
         if (result.Cancelled)
         {

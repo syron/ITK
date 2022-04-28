@@ -65,7 +65,7 @@
 
             <label for="definition">Definition</label>
         
-            <MonacoEditor @ref="_editor" Id="definition" CssClass="my-editor-class" ConstructionOptions="EditorConstructionOptions" />
+            <MonacoEditor @ref="_editor" Id="definition" CssClass="my-editor-class" OnDidInit="EditorOnDidInit" ConstructionOptions="EditorConstructionOptions" />
 
         </div>
     </div>   
@@ -92,6 +92,11 @@
             AutomaticLayout = true,
             Language = "json"
         };
+    }
+
+    private async Task EditorOnDidInit(MonacoEditorBase editor)
+    {
+        _editor.SetValue("");
     }
 
     private async void OnGenerateSchema() 
