@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="BlazorMonaco" Version="2.1.0" />
+    <PackageReference Include="DotLiquid" Version="2.2.631" />
     <PackageReference Include="NJsonSchema" Version="10.6.10" />
     <PackageReference Include="TabBlazor" Version="0.5.3-alpha" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.3" />
@@ -16,6 +17,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Newtonsoft.Json" />
+  </ItemGroup>
 </Project>

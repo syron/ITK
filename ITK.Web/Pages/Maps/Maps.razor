@@ -1,4 +1,4 @@
-@page "/Maps"
+﻿@page "/Maps"
 
 @using KIT.Models
 @using KIT.Services
@@ -11,6 +11,7 @@
 <TabBlazor.PageTitle>
     List of Maps
 </TabBlazor.PageTitle>
+<a href="/maps/add" class="btn btn-primary">Add Map</a>
 
 <div class="row mt-2">
     @if (MapData is not null)

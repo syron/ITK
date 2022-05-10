@@ -1,0 +1,96 @@
+﻿@page "/schematester"
+
+@using KIT.Services
+@using Newtonsoft.Json
+@using DotLiquid
+@using System.Dynamic;
+
+@inject SchemasService SchemasService
+
+<TabBlazor.PageTitle>
+    Map Tester
+</TabBlazor.PageTitle>
+
+<button class="btn btn-secondary" @onclick="LoadExample">Load example</button>
+<button class="btn btn-primary" @onclick="Generate">Test your map</button>
+
+<div class="row">
+    <div class="col">
+
+        <h3>Provide your JSON data</h3>
+        <MonacoEditor @ref="_inputEditor" Id="data" CssClass="my-editor-class" ConstructionOptions="EditorConstructionOptions" />
+
+    </div>
+    <div class="col">
+
+        <h3>Provide your Liquid Template</h3>
+        <MonacoEditor @ref="_templateEditor" Id="template" CssClass="my-editor-class" ConstructionOptions="TemplateEditorConstructionOptions" />
+
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <h3>The fantastic result</h3>
+        <pre><code>@result</code></pre>
+    </div>
+</div>
+
+
+@code {
+            string result { get; set; }
+
+            MonacoEditor? _inputEditor { get; set; }
+            MonacoEditor? _templateEditor { get; set; }
+
+    protected override async Task OnInitializedAsync()
+        {
+        }
+
+        private StandaloneEditorConstructionOptions EditorConstructionOptions(MonacoEditor editor)
+        {
+            return new StandaloneEditorConstructionOptions
+            {
+                AutomaticLayout = true,
+                Language = "json"
+            };
+        }
+
+        private StandaloneEditorConstructionOptions TemplateEditorConstructionOptions(MonacoEditor editor)
+        {
+            return new StandaloneEditorConstructionOptions
+            {
+                AutomaticLayout = true,
+                Language = "liquid"
+            };
+        }
+
+        private async Task EditorOnDidInit(MonacoEditorBase editor)
+        {
+        }
+
+        async void LoadExample()
+        {
+            await _inputEditor.SetValue("{\r\n    \"a\": 1337,\r\n    \"Creator\": \"Robert\" \r\n}");
+            await _templateEditor.SetValue("My creator is {{Creator}} and he is soooo {{ a }}");
+        }
+
+        public async Task Generate()
+        {
+            string input = await _inputEditor.GetValue();
+            string template = await _templateEditor.GetValue();
+
+            if (!string.IsNullOrWhiteSpace(input) && !string.IsNullOrWhiteSpace(template))
+            {
+
+                Template liquidTemplate = Template.Parse(template); // Parses and compiles the template
+
+
+                Template.NamingConvention = new DotLiquid.NamingConventions.CSharpNamingConvention();
+                var model = JsonConvert.DeserializeObject<ExpandoObject>(input);
+                var templateModel = Hash.FromDictionary(model);
+                //var deserialized = Hash.FromAnonymousObject(Newtonsoft.Json.JsonConvert.DeserializeObject<object>(data));
+                result = liquidTemplate.Render(templateModel);
+            }
+
+        }
+    }

@@ -18,23 +18,6 @@
     Create a new Schema
 </TabBlazor.PageTitle>
 
-
-
-@*
-
-    <Modal @ref="modal" Title="Save Schema">
-        <BodyTemplate>
-
-            <label for="savecomment">Comment:</label>
-            <textarea id="savecomment" class="form-control" @bind="saveComment"></textarea>
-
-        </BodyTemplate>
-        <FooterTemplate>
-            <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
-            <Button Color="ButtonColor.Primary" @onclick="OnSaveModalClick">Save changes</Button>
-        </FooterTemplate>
-    </Modal> *@
-
 <EditForm Model="schema" OnValidSubmit="HandleValidSubmit">
     <div class="row">
         <div class="col">

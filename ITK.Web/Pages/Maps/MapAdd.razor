@@ -1,4 +1,4 @@
-@page "/Maps/add"
+﻿@page "/Maps/add"
 
 @using KIT.Models;
 @using KIT.Services;
@@ -8,47 +8,50 @@
 
 @if (Schemas is not null) 
 {
-    <EditForm Model="map" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+<EditForm Model="map" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-        <label for="name">Name</label>
-        <InputText class="form-control" id="name" @bind-Value="map.Name" />    
+    <label for="name">Name</label>
+    <InputText class="form-control" id="name" @bind-Value="map.Name" />
 
-        <label for="description">Description</label>
-        <InputTextArea class="form-control" id="description" @bind-Value="map.Description" />
-        
-        <label for="name">Maptype</label>
-        <InputSelect class="form-control" @bind-Value="map.MapType">
-            @foreach (var e in Enum.GetNames(typeof(MapType))) {
-                <option value="@e">@e</option>
-            }
-        </InputSelect>
+    <label for="description">Description</label>
+    <InputTextArea class="form-control" id="description" @bind-Value="map.Description" />
 
-        <label for="description">Content</label>
-        <InputTextArea class="form-control" id="content" @bind-Value="map.Content" />
-        
-        <label for="name">In Schema</label>
-        <InputSelect class="form-control" @bind-Value="map.InSchemaId">
-            @foreach (var schema in Schemas) 
-            {
-                <option value="@schema.Id">@schema.Name (@schema.DataType)</option>
-            }
-        </InputSelect>
+    <label for="name">Maptype</label>
+    <InputSelect class="form-control" @bind-Value="map.MapType">
+        @foreach (var e in Enum.GetNames(typeof(MapType)))
+        {
+            <option value="@e">@e</option>
+        }
+    </InputSelect>
 
-        <label for="name">Out Schema</label>
-        <InputSelect class="form-control" @bind-Value="map.OutSchemaId">
-            @foreach (var schema in Schemas) 
-            {
-                <option value="@schema.Id">@schema.Name (@schema.DataType)</option>
-            }
-        </InputSelect>
+    <label for="description">Content</label>
+    <MonacoEditor @ref="_editor" Id="definition" CssClass="my-editor-class" OnDidInit="EditorOnDidInit" ConstructionOptions="EditorConstructionOptions" />
 
-        <button type="submit">Submit</button>
-    </EditForm>
+
+    <label for="name">In Schema</label>
+    <InputSelect class="form-control" @bind-Value="map.InSchemaId">
+        @foreach (var schema in Schemas)
+        {
+            <option value="@schema.Id">@schema.Name (@schema.DataType)</option>
+        }
+    </InputSelect>
+
+    <label for="name">Out Schema</label>
+    <InputSelect class="form-control" @bind-Value="map.OutSchemaId">
+        @foreach (var schema in Schemas)
+        {
+            <option value="@schema.Id">@schema.Name (@schema.DataType)</option>
+        }
+    </InputSelect>
+
+    <button type="submit">Submit</button>
+</EditForm>
 }
 
 @code {
+    MonacoEditor? _editor { get; set; }
     private Map map = new(string.Empty, MapType.Liquid, "Robert");
     private List<Schema>? Schemas = null;
 
@@ -68,5 +71,19 @@
         else {
             await MapsService.AddAsync(map);
         }
+    }
+
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(MonacoEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+        {
+            AutomaticLayout = true,
+            Language = "json"
+        };
+    }
+
+    private async Task EditorOnDidInit(MonacoEditorBase editor)
+    {
+        
     }
 }
